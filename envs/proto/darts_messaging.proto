@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package darts;
+
+// Inter-agent messaging (one AgentMessenger server per Jetson / per process in tests).
+service AgentMessenger {
+  rpc Subscribe(SubscribeRequest) returns (stream Envelope);
+  rpc Send(Envelope) returns (Ack);
+  rpc Ping(PingRequest) returns (PingResponse);
+}
+
+message Envelope {
+  string sender = 1;
+  string receiver = 2;
+  bytes payload = 3;
+  double send_time_ms = 4;
+}
+
+message SubscribeRequest { string agent_id = 1; }
+
+message Ack { bool ok = 1; }
+
+message PingRequest {
+  string sender = 1;
+  double t_send_ms = 2;
+}
+
+message PingResponse { double t_recv_ms = 1; }

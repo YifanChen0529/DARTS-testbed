@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package darts;
+
+// Runs on the coordinator host; agent_nodes call these RPCs to register calibration and episode results.
+service TeamCoordinator {
+  rpc ReportCalibration(CalibrationReport) returns (CoordinatorAck);
+  rpc ReportEpisodeEnd(EpisodeEndReport) returns (CoordinatorAck);
+  // Server streaming: each agent_node opens one long-lived stream and receives the same episode schedule.
+  rpc SubscribeEpisodes(SubscribeAgent) returns (stream EpisodeSpec);
+}
+
+message CoordinatorAck { bool ok = 1; }
+
+message SubscribeAgent { string agent_id = 1; }
+
+message EpisodeSpec {
+  int32 episode_idx = 1;
+  int64 dag_seed = 2;
+  string release_schedule_json = 3;
+  // Team-wide calibrated one-way bound (max over agents’ ping samples). Used as cfg.delta_max_ms during the episode.
+  double effective_delta_max_ms = 4;
+}
+
+message CalibrationReport {
+  string agent_id = 1;
+  double max_observed_one_way_ms = 2;
+  string detail_json = 3;
+}
+
+message EpisodeEndReport {
+  string agent_id = 1;
+  int32 episode_idx = 2;
+  string csv_row = 3;
+}

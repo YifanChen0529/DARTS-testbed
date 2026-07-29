@@ -1,0 +1,13 @@
+# CPU-only environment for the RTSS'26 Paper #117 artifact.
+# Requires Python >= 3.11 (evaluator target: Ubuntu 24.04 / Python 3.12).
+# Step 1: pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+# Step 2: pip install -r requirements-x86.txt
+# (torch is installed separately from the CPU wheel index so this file never redirects the index for other packages.)
+
+numpy==2.4.2
+pandas==3.0.1
+matplotlib==3.10.8
+grpcio==1.78.0
+protobuf==7.34.0
+tensorboard==2.20.0
+pytest==8.4.2
