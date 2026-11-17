@@ -1,7 +1,9 @@
-# DARTS^rt — RTSS 2026 Artifact (Paper #117)
+# DARTS^rt
 
-Artifact for **"DARTS^rt: A Real-Time MARL Framework with Bounded Auction Latency and
-Schedulability"** (RTSS 2026, Paper #117).
+Code, data, and supplementary material for **"DARTS^rt: A Real-Time MARL Framework with
+Bounded Auction Latency and Schedulability"** by Yifan Chen and Cong Liu (RTSS 2026).
+The artifact passed the RTSS 2026 artifact evaluation; the evaluated version of this
+repository is the git tag `rtss26-ae`.
 
 This package reproduces every evaluation element of the paper — Figures 3–6 and
 Supplementary Tables II–V — from the included raw experiment logs, and provides a
@@ -9,10 +11,17 @@ reduced-scale end-to-end demo that runs the full DARTS^rt stack (coordinator + f
 agents, auction, certificates, incentive update) on commodity hardware in under a
 minute. **No robot, Jetson, or network hardware is required.**
 
-- Code: git tag `rtss26-ae` <!-- TODO(YC): confirm final tag name after advisor sign-off -->
+The paragraph above and Sections 1 to 8 describe the evaluated version. The camera-ready
+version of the paper regroups the panels of Figures 3 to 5 and adds Figure 7 and
+Supplementary Sections VIII to X. Section 9 maps the figure numbering and lists the
+added experiments.
+
+- Code: this repository. The default branch is the camera-ready version; the git tag `rtss26-ae` is the evaluated version.
 - Data: `data/` (≈12 MB, 769 curated episode-log CSVs + manifests)
-- Contact: Yifan Chen, UC Riverside <!-- TODO(YC): confirm contact email -->
+- Contact: Yifan Chen, UC Riverside, ychen1320@ucr.edu
 - License: see `LICENSE` at the repository root
+- Supplementary material: [`supplementary.pdf`](supplementary.pdf) at the repository root
+- Citation: Section 10 and `CITATION.cff`
 
 ---
 
@@ -155,3 +164,57 @@ the timing-column semantics (what is measured, on which hardware, in which mode)
 - **Regenerated `vg_*.md` differ slightly from the committed repo-root copies** →
   expected and documented; see `DATA.md` §7 (the committed copies are the frozen
   paper-time outputs).
+
+## 9. Camera-ready version: figure numbering and added experiments
+
+Sections 3 to 8 use the figure numbers of the evaluated version. The camera-ready paper
+shows the same panels in a different grouping. The supplementary table numbers II to V
+are unchanged.
+
+| Camera-ready element | Regenerate with | Panel file in `out/` |
+|---|---|---|
+| Fig. 3, left (B1 heavy-stress miss rate) | `make fig3` | `FIG0_headline_b1heavy.pdf` |
+| Fig. 3, right (B1 stress sweep and certified coverage) | `make fig4` | `FIG1_b1_grid.pdf` |
+| Fig. 4(a), 4(b) (auction time by frontier size; agent scaling) | `make fig5` | `FIG2_generalization_scaling.pdf`, timing panels |
+| Fig. 4(c) (offline bound versus measured response time) | `make fig3` | `FIG3_t3_tightness.pdf` |
+| Fig. 5 (miss rate across DBench-4) | `make fig5` | `FIG2_generalization_scaling.pdf`, generalization panels |
+| Fig. 6 (admission-infeasibility breakdown) | `make fig6` | `FIG4_d1_heatmap.pdf` |
+| Supp. Tables II to V | `make tab2` to `make tab5` | as listed in Section 4 |
+
+The camera-ready version adds four experiments. Their generated figures and tables are
+part of the repository; `docs/README.md` describes the records kept for each of them.
+
+| Camera-ready element | Experiment | Code | Generated files |
+|---|---|---|---|
+| Fig. 7; Supp. Sec. VIII-A, Table VI | Certificate conservatism under envelope scaling | `scripts/sweep_tb1.py`, `scripts/tb1_analysis.py`, `scripts/fig_tb1_tradeoff.py` | `figures/FIG_tb1_tradeoff.pdf` |
+| Supp. Sec. VIII-B, Tables VII and VIII, Fig. 1 | Offline acceptance and over-rejection | `scripts/offline_test_harness.py`, `scripts/sweep_tb3.py`, `scripts/tb3_empirical_collect.py`, `scripts/tb3_analysis.py`, `scripts/fig_tb3_f3.py` | `figures/FIG_tb3_f3.pdf`, `docs/tb3/*.csv` |
+| Supp. Sec. IX, Table IX, Fig. 2 | Periodic-release validation of Theorem 2(a) | `alg/periodic_release.py`, `scripts/sweep_exp2.py`, `scripts/thm2a_analysis.py`, `scripts/fig_exp2_response_cdf.py` | `figures/FIG_exp2_response_cdf.pdf`, `docs/exp2/exp2_supplementary_table.csv` |
+| Supp. Sec. X, Table X, Fig. 3 | CBBA convergence-latency microbenchmark | `benchmarks/cbba_microbench/`, `scripts/cbba_analysis.py`, `scripts/fig_exp3_tconv_cdf.py` | `figures/FIG_exp3_tconv_cdf.pdf`, `docs/exp3/exp3_summary_table.csv` |
+
+Directories added since the evaluated version: `benchmarks/` (the CBBA microbenchmark),
+`docs/` (experiment records), and `figures/` (generated figures with their caption files).
+`git diff --stat rtss26-ae` lists every difference between the two versions.
+
+The certificate interface that the conclusion of the paper refers to (online certificate,
+cost envelopes, offline test) is documented in `docs/certificate_interface.md`. The raw
+result trees of the four added experiments, which are the inputs of the analysis and
+figure scripts listed above, and the trained policy checkpoints are not part of the
+repository. Tests that need the checkpoints are skipped with a stated reason.
+
+Equation numbers in code comments, docstrings, and help texts follow earlier drafts of the
+paper and can differ from the camera-ready numbering. For example, the offline path-sum
+test is Eq. (23) of the paper and `eq. 26` in the help text of
+`scripts/offline_test_harness.py`.
+
+## 10. Citation
+
+```bibtex
+@inproceedings{chen2026dartsrt,
+  author    = {Chen, Yifan and Liu, Cong},
+  title     = {{DARTS}$^{\mathrm{rt}}$: A Real-Time {MARL} Framework with Bounded Auction Latency and Schedulability},
+  booktitle = {2026 IEEE Real-Time Systems Symposium (RTSS)},
+  year      = {2026}
+}
+```
+
+`CITATION.cff` at the repository root carries the same reference.

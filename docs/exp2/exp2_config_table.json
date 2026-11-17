@@ -1,0 +1,573 @@
+{
+  "schema_version": 1,
+  "notes": "Table frozen from scripts/thm2a_offline_test.py with --impl_factors on. Unfactored delta_sum is informational.",
+  "n_configs": 12,
+  "configs": [
+    {
+      "config_id": "exp2_B4_DEM_d030",
+      "workload": "B4_DEM",
+      "alloc_map_file": "docs/exp2/alloc_b4_identity.json",
+      "target_delta_sum": 0.3,
+      "outside_certified_region": false,
+      "D_v_ms": 363000.0,
+      "P_ms": 363000.0,
+      "L": 30,
+      "delta_sum_factored": {
+        "agent_1": 0.2998395993163512,
+        "agent_2": 0.2998395993163512,
+        "agent_3": 0.2998395993163512,
+        "agent_4": 0.2998395993163512
+      },
+      "delta_sum_unfactored": {
+        "agent_1": 0.20142448862592585,
+        "agent_2": 0.20142448862592585,
+        "agent_3": 0.20142448862592585,
+        "agent_4": 0.20142448862592585
+      },
+      "Lambda_lat": 2120.0,
+      "A_bar": 4,
+      "verdict": "ADMIT",
+      "assumption_check": "PASS",
+      "ckpt_dir": "results/darts_B4_DEM_medium_seed100",
+      "ckpt_ep": 5000,
+      "eval_seed_base": 100,
+      "eval_episodes": 1,
+      "per_period_energy": "reset",
+      "max_episode_steps": 11253,
+      "global_deadline_ms": 11253000.0,
+      "effective_xi": {
+        "J1": 18000.0,
+        "J2": 18000.0,
+        "J3": 18000.0,
+        "J4": 18000.0
+      },
+      "declared_xi": {
+        "J1": 18000.0,
+        "J2": 18000.0,
+        "J3": 18000.0,
+        "J4": 18000.0
+      },
+      "tau_bar_impl_ms": 90156.1146012848,
+      "tau_bar_raw_ms": 54640.06945532413
+    },
+    {
+      "config_id": "exp2_B4_DEM_d050",
+      "workload": "B4_DEM",
+      "alloc_map_file": "docs/exp2/alloc_b4_identity.json",
+      "target_delta_sum": 0.5,
+      "outside_certified_region": false,
+      "D_v_ms": 219000.0,
+      "P_ms": 219000.0,
+      "L": 30,
+      "delta_sum_factored": {
+        "agent_1": 0.4989215907473479,
+        "agent_2": 0.4989215907473479,
+        "agent_3": 0.4989215907473479,
+        "agent_4": 0.4989215907473479
+      },
+      "delta_sum_unfactored": {
+        "agent_1": 0.3351626219813912,
+        "agent_2": 0.3351626219813912,
+        "agent_3": 0.3351626219813912,
+        "agent_4": 0.3351626219813912
+      },
+      "Lambda_lat": 2120.0,
+      "A_bar": 4,
+      "verdict": "ADMIT",
+      "assumption_check": "PASS",
+      "ckpt_dir": "results/darts_B4_DEM_medium_seed100",
+      "ckpt_ep": 5000,
+      "eval_seed_base": 100,
+      "eval_episodes": 1,
+      "per_period_energy": "reset",
+      "max_episode_steps": 6789,
+      "global_deadline_ms": 6789000.0,
+      "effective_xi": {
+        "J1": 18000.0,
+        "J2": 18000.0,
+        "J3": 18000.0,
+        "J4": 18000.0
+      },
+      "declared_xi": {
+        "J1": 18000.0,
+        "J2": 18000.0,
+        "J3": 18000.0,
+        "J4": 18000.0
+      },
+      "tau_bar_impl_ms": 90156.1146012848,
+      "tau_bar_raw_ms": 54640.06945532413
+    },
+    {
+      "config_id": "exp2_B4_DEM_d070",
+      "workload": "B4_DEM",
+      "alloc_map_file": "docs/exp2/alloc_b4_identity.json",
+      "target_delta_sum": 0.7,
+      "outside_certified_region": false,
+      "D_v_ms": 157000.0,
+      "P_ms": 157000.0,
+      "L": 30,
+      "delta_sum_factored": {
+        "agent_1": 0.6986448515062293,
+        "agent_2": 0.6986448515062293,
+        "agent_3": 0.6986448515062293,
+        "agent_4": 0.6986448515062293
+      },
+      "delta_sum_unfactored": {
+        "agent_1": 0.46933154348737166,
+        "agent_2": 0.46933154348737166,
+        "agent_3": 0.46933154348737166,
+        "agent_4": 0.46933154348737166
+      },
+      "Lambda_lat": 2120.0,
+      "A_bar": 4,
+      "verdict": "ADMIT",
+      "assumption_check": "PASS",
+      "ckpt_dir": "results/darts_B4_DEM_medium_seed100",
+      "ckpt_ep": 5000,
+      "eval_seed_base": 100,
+      "eval_episodes": 1,
+      "per_period_energy": "reset",
+      "max_episode_steps": 4867,
+      "global_deadline_ms": 4867000.0,
+      "effective_xi": {
+        "J1": 18000.0,
+        "J2": 18000.0,
+        "J3": 18000.0,
+        "J4": 18000.0
+      },
+      "declared_xi": {
+        "J1": 18000.0,
+        "J2": 18000.0,
+        "J3": 18000.0,
+        "J4": 18000.0
+      },
+      "tau_bar_impl_ms": 90156.1146012848,
+      "tau_bar_raw_ms": 54640.06945532413
+    },
+    {
+      "config_id": "exp2_B4_DEM_d085",
+      "workload": "B4_DEM",
+      "alloc_map_file": "docs/exp2/alloc_b4_identity.json",
+      "target_delta_sum": 0.85,
+      "outside_certified_region": false,
+      "D_v_ms": 130000.0,
+      "P_ms": 130000.0,
+      "L": 30,
+      "delta_sum_factored": {
+        "agent_1": 0.846153539265599,
+        "agent_2": 0.846153539265599,
+        "agent_3": 0.846153539265599,
+        "agent_4": 0.846153539265599
+      },
+      "delta_sum_unfactored": {
+        "agent_1": 0.5684240651808267,
+        "agent_2": 0.5684240651808267,
+        "agent_3": 0.5684240651808267,
+        "agent_4": 0.5684240651808267
+      },
+      "Lambda_lat": 2120.0,
+      "A_bar": 4,
+      "verdict": "ADMIT",
+      "assumption_check": "PASS",
+      "ckpt_dir": "results/darts_B4_DEM_medium_seed100",
+      "ckpt_ep": 5000,
+      "eval_seed_base": 100,
+      "eval_episodes": 1,
+      "per_period_energy": "reset",
+      "max_episode_steps": 4030,
+      "global_deadline_ms": 4030000.0,
+      "effective_xi": {
+        "J1": 18000.0,
+        "J2": 18000.0,
+        "J3": 18000.0,
+        "J4": 18000.0
+      },
+      "declared_xi": {
+        "J1": 18000.0,
+        "J2": 18000.0,
+        "J3": 18000.0,
+        "J4": 18000.0
+      },
+      "tau_bar_impl_ms": 90156.1146012848,
+      "tau_bar_raw_ms": 54640.06945532413
+    },
+    {
+      "config_id": "exp2_B4_DEM_probe",
+      "workload": "B4_DEM",
+      "alloc_map_file": "docs/exp2/alloc_b4_identity.json",
+      "target_delta_sum": null,
+      "outside_certified_region": true,
+      "D_v_ms": 103000.0,
+      "P_ms": 103000.0,
+      "L": 30,
+      "delta_sum_factored": {
+        "agent_1": 1.0726220717811736,
+        "agent_2": 1.0726220717811736,
+        "agent_3": 1.0726220717811736,
+        "agent_4": 1.0726220717811736
+      },
+      "delta_sum_unfactored": {
+        "agent_1": 0.7205597685896522,
+        "agent_2": 0.7205597685896522,
+        "agent_3": 0.7205597685896522,
+        "agent_4": 0.7205597685896522
+      },
+      "Lambda_lat": 2120.0,
+      "A_bar": 4,
+      "verdict": "REJECT",
+      "assumption_check": "PASS",
+      "ckpt_dir": "results/darts_B4_DEM_medium_seed100",
+      "ckpt_ep": 5000,
+      "eval_seed_base": 100,
+      "eval_episodes": 1,
+      "per_period_energy": "reset",
+      "max_episode_steps": 3193,
+      "global_deadline_ms": 3193000.0,
+      "effective_xi": {
+        "J1": 18000.0,
+        "J2": 18000.0,
+        "J3": 18000.0,
+        "J4": 18000.0
+      },
+      "declared_xi": {
+        "J1": 18000.0,
+        "J2": 18000.0,
+        "J3": 18000.0,
+        "J4": 18000.0
+      },
+      "tau_bar_impl_ms": 90156.1146012848,
+      "tau_bar_raw_ms": 54640.06945532413,
+      "target_delta_sum_label": "outside the certified region"
+    },
+    {
+      "config_id": "exp2_B3_IQI_d030",
+      "workload": "B3_IQI",
+      "alloc_map_file": "docs/exp2/alloc_b3_chain.json",
+      "target_delta_sum": 0.3,
+      "outside_certified_region": false,
+      "D_v_ms": 360000.0,
+      "P_ms": 663000.0,
+      "L": 30,
+      "delta_sum_factored": {
+        "agent_1": 0.25775128099394506,
+        "agent_2": 0.28568658283488146,
+        "agent_3": 0.28568658283488146,
+        "agent_4": 0.29965423375534966
+      },
+      "delta_sum_unfactored": {
+        "agent_1": 0.17277514546657036,
+        "agent_2": 0.20071044730750676,
+        "agent_3": 0.20071044730750676,
+        "agent_4": 0.21467809822797496
+      },
+      "Lambda_lat": 2030.0,
+      "A_bar": 1,
+      "verdict": "ADMIT",
+      "assumption_check": "PASS",
+      "ckpt_dir": "results/darts_B3_IQI_medium_seed100",
+      "ckpt_ep": 5000,
+      "eval_seed_base": 100,
+      "eval_episodes": 1,
+      "per_period_energy": "reset",
+      "max_episode_steps": 20553,
+      "global_deadline_ms": 20553000.0,
+      "effective_xi": {
+        "A": 15000.0,
+        "B": 25000.0,
+        "C": 25000.0,
+        "D": 30000.0
+      },
+      "declared_xi": {
+        "A": 10000.0,
+        "B": 15000.0,
+        "C": 20000.0,
+        "D": 15000.0
+      },
+      "tau_bar_impl_ms": 77217.22605740251,
+      "tau_bar_raw_ms": 46798.31882266819
+    },
+    {
+      "config_id": "exp2_B3_IQI_d050",
+      "workload": "B3_IQI",
+      "alloc_map_file": "docs/exp2/alloc_b3_chain.json",
+      "target_delta_sum": 0.5,
+      "outside_certified_region": false,
+      "D_v_ms": 217000.0,
+      "P_ms": 520000.0,
+      "L": 30,
+      "delta_sum_factored": {
+        "agent_1": 0.429209778375599,
+        "agent_2": 0.4757278971828744,
+        "agent_3": 0.4757278971828744,
+        "agent_4": 0.49898695658651215
+      },
+      "delta_sum_unfactored": {
+        "agent_1": 0.28770674430231286,
+        "agent_2": 0.3342248631095883,
+        "agent_3": 0.3342248631095883,
+        "agent_4": 0.357483922513226
+      },
+      "Lambda_lat": 2030.0,
+      "A_bar": 1,
+      "verdict": "ADMIT",
+      "assumption_check": "PASS",
+      "ckpt_dir": "results/darts_B3_IQI_medium_seed100",
+      "ckpt_ep": 5000,
+      "eval_seed_base": 100,
+      "eval_episodes": 1,
+      "per_period_energy": "reset",
+      "max_episode_steps": 16120,
+      "global_deadline_ms": 16120000.0,
+      "effective_xi": {
+        "A": 15000.0,
+        "B": 25000.0,
+        "C": 25000.0,
+        "D": 30000.0
+      },
+      "declared_xi": {
+        "A": 10000.0,
+        "B": 15000.0,
+        "C": 20000.0,
+        "D": 15000.0
+      },
+      "tau_bar_impl_ms": 77217.22605740251,
+      "tau_bar_raw_ms": 46798.31882266819
+    },
+    {
+      "config_id": "exp2_B3_IQI_d070",
+      "workload": "B3_IQI",
+      "alloc_map_file": "docs/exp2/alloc_b3_chain.json",
+      "target_delta_sum": 0.7,
+      "outside_certified_region": false,
+      "D_v_ms": 156000.0,
+      "P_ms": 459000.0,
+      "L": 30,
+      "delta_sum_factored": {
+        "agent_1": 0.5992545694447133,
+        "agent_2": 0.6642022865324577,
+        "agent_3": 0.6642022865324577,
+        "agent_4": 0.6966761450763299
+      },
+      "delta_sum_unfactored": {
+        "agent_1": 0.40169071132472683,
+        "agent_2": 0.4666384284124712,
+        "agent_3": 0.4666384284124712,
+        "agent_4": 0.4991122869563434
+      },
+      "Lambda_lat": 2030.0,
+      "A_bar": 1,
+      "verdict": "ADMIT",
+      "assumption_check": "PASS",
+      "ckpt_dir": "results/darts_B3_IQI_medium_seed100",
+      "ckpt_ep": 5000,
+      "eval_seed_base": 100,
+      "eval_episodes": 1,
+      "per_period_energy": "reset",
+      "max_episode_steps": 14229,
+      "global_deadline_ms": 14229000.0,
+      "effective_xi": {
+        "A": 15000.0,
+        "B": 25000.0,
+        "C": 25000.0,
+        "D": 30000.0
+      },
+      "declared_xi": {
+        "A": 10000.0,
+        "B": 15000.0,
+        "C": 20000.0,
+        "D": 15000.0
+      },
+      "tau_bar_impl_ms": 77217.22605740251,
+      "tau_bar_raw_ms": 46798.31882266819
+    },
+    {
+      "config_id": "exp2_B3_IQI_d085",
+      "workload": "B3_IQI",
+      "alloc_map_file": "docs/exp2/alloc_b3_chain.json",
+      "target_delta_sum": 0.85,
+      "outside_certified_region": false,
+      "D_v_ms": 129000.0,
+      "P_ms": 432000.0,
+      "L": 30,
+      "delta_sum_factored": {
+        "agent_1": 0.726685248935989,
+        "agent_2": 0.8054440108482517,
+        "agent_3": 0.8054440108482517,
+        "agent_4": 0.844823391804383
+      },
+      "delta_sum_unfactored": {
+        "agent_1": 0.4871097016828242,
+        "agent_2": 0.565868463595087,
+        "agent_3": 0.565868463595087,
+        "agent_4": 0.6052478445512184
+      },
+      "Lambda_lat": 2030.0,
+      "A_bar": 1,
+      "verdict": "ADMIT",
+      "assumption_check": "PASS",
+      "ckpt_dir": "results/darts_B3_IQI_medium_seed100",
+      "ckpt_ep": 5000,
+      "eval_seed_base": 100,
+      "eval_episodes": 1,
+      "per_period_energy": "reset",
+      "max_episode_steps": 13392,
+      "global_deadline_ms": 13392000.0,
+      "effective_xi": {
+        "A": 15000.0,
+        "B": 25000.0,
+        "C": 25000.0,
+        "D": 30000.0
+      },
+      "declared_xi": {
+        "A": 10000.0,
+        "B": 15000.0,
+        "C": 20000.0,
+        "D": 15000.0
+      },
+      "tau_bar_impl_ms": 77217.22605740251,
+      "tau_bar_raw_ms": 46798.31882266819
+    },
+    {
+      "config_id": "exp2_B3_IQI_probe",
+      "workload": "B3_IQI",
+      "alloc_map_file": "docs/exp2/alloc_b3_chain.json",
+      "target_delta_sum": null,
+      "outside_certified_region": true,
+      "D_v_ms": 102000.0,
+      "P_ms": 405000.0,
+      "L": 30,
+      "delta_sum_factored": {
+        "agent_1": 0.9229491453176204,
+        "agent_2": 1.0229791543203213,
+        "agent_3": 1.0229791543203213,
+        "agent_4": 1.0729941588216716
+      },
+      "delta_sum_unfactored": {
+        "agent_1": 0.6186687888633409,
+        "agent_2": 0.7186987978660417,
+        "agent_3": 0.7186987978660417,
+        "agent_4": 0.7687138023673922
+      },
+      "Lambda_lat": 2030.0,
+      "A_bar": 1,
+      "verdict": "REJECT",
+      "assumption_check": "PASS",
+      "ckpt_dir": "results/darts_B3_IQI_medium_seed100",
+      "ckpt_ep": 5000,
+      "eval_seed_base": 100,
+      "eval_episodes": 1,
+      "per_period_energy": "reset",
+      "max_episode_steps": 12555,
+      "global_deadline_ms": 12555000.0,
+      "effective_xi": {
+        "A": 15000.0,
+        "B": 25000.0,
+        "C": 25000.0,
+        "D": 30000.0
+      },
+      "declared_xi": {
+        "A": 10000.0,
+        "B": 15000.0,
+        "C": 20000.0,
+        "D": 15000.0
+      },
+      "tau_bar_impl_ms": 77217.22605740251,
+      "tau_bar_raw_ms": 46798.31882266819,
+      "target_delta_sum_label": "outside the certified region"
+    },
+    {
+      "config_id": "exp2_B4_DEM_d085_rep",
+      "workload": "B4_DEM",
+      "alloc_map_file": "docs/exp2/alloc_b4_identity.json",
+      "target_delta_sum": 0.85,
+      "outside_certified_region": false,
+      "D_v_ms": 130000.0,
+      "P_ms": 130000.0,
+      "L": 30,
+      "delta_sum_factored": {
+        "agent_1": 0.846153539265599,
+        "agent_2": 0.846153539265599,
+        "agent_3": 0.846153539265599,
+        "agent_4": 0.846153539265599
+      },
+      "delta_sum_unfactored": {
+        "agent_1": 0.5684240651808267,
+        "agent_2": 0.5684240651808267,
+        "agent_3": 0.5684240651808267,
+        "agent_4": 0.5684240651808267
+      },
+      "Lambda_lat": 2120.0,
+      "A_bar": 4,
+      "verdict": "ADMIT",
+      "assumption_check": "PASS",
+      "ckpt_dir": "results/darts_B4_DEM_medium_seed100",
+      "ckpt_ep": 5000,
+      "eval_seed_base": 200,
+      "eval_episodes": 1,
+      "per_period_energy": "reset",
+      "max_episode_steps": 4030,
+      "global_deadline_ms": 4030000.0,
+      "effective_xi": {
+        "J1": 18000.0,
+        "J2": 18000.0,
+        "J3": 18000.0,
+        "J4": 18000.0
+      },
+      "declared_xi": {
+        "J1": 18000.0,
+        "J2": 18000.0,
+        "J3": 18000.0,
+        "J4": 18000.0
+      },
+      "tau_bar_impl_ms": 90156.1146012848,
+      "tau_bar_raw_ms": 54640.06945532413
+    },
+    {
+      "config_id": "exp2_B3_IQI_d085_rep",
+      "workload": "B3_IQI",
+      "alloc_map_file": "docs/exp2/alloc_b3_chain.json",
+      "target_delta_sum": 0.85,
+      "outside_certified_region": false,
+      "D_v_ms": 129000.0,
+      "P_ms": 432000.0,
+      "L": 30,
+      "delta_sum_factored": {
+        "agent_1": 0.726685248935989,
+        "agent_2": 0.8054440108482517,
+        "agent_3": 0.8054440108482517,
+        "agent_4": 0.844823391804383
+      },
+      "delta_sum_unfactored": {
+        "agent_1": 0.4871097016828242,
+        "agent_2": 0.565868463595087,
+        "agent_3": 0.565868463595087,
+        "agent_4": 0.6052478445512184
+      },
+      "Lambda_lat": 2030.0,
+      "A_bar": 1,
+      "verdict": "ADMIT",
+      "assumption_check": "PASS",
+      "ckpt_dir": "results/darts_B3_IQI_medium_seed100",
+      "ckpt_ep": 5000,
+      "eval_seed_base": 200,
+      "eval_episodes": 1,
+      "per_period_energy": "reset",
+      "max_episode_steps": 13392,
+      "global_deadline_ms": 13392000.0,
+      "effective_xi": {
+        "A": 15000.0,
+        "B": 25000.0,
+        "C": 25000.0,
+        "D": 30000.0
+      },
+      "declared_xi": {
+        "A": 10000.0,
+        "B": 15000.0,
+        "C": 20000.0,
+        "D": 15000.0
+      },
+      "tau_bar_impl_ms": 77217.22605740251,
+      "tau_bar_raw_ms": 46798.31882266819
+    }
+  ]
+}

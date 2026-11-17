@@ -1,4 +1,4 @@
-> **Development README.** Artifact evaluators: start at [README.md](README.md).
+> **Development README.** To reproduce the results of the paper, start at [README.md](README.md).
 > This file documents repository internals and the development (Jetson/conda) environment.
 
 # DARTSrt
@@ -47,7 +47,6 @@ DARTSrt redesigns the MARL assignment-and-scheduling loop around four mechanisms
 │   ├── baseline_sadcher.py   # ENTRY: SADCHER (GAT+Transformer) baseline, RL-retrained
 │   ├── sadcher_agent.py       # SADCHER allocator network
 │   ├── stress_profiles.py    # Per-benchmark light/medium/heavy stress overrides
-│   ├── run_all_experiments_{light,medium,heavy}.py  # Simulator sweep drivers
 │   ├── run_eval_matrix.py    # Distributed (hardware) one-episode-per-tuple eval driver
 │   ├── coordinator.py        # ENTRY: episode-lifecycle orchestrator (distributed_jetson)
 │   ├── agent_node.py         # ENTRY: one agent process per Jetson (distributed_jetson)
@@ -69,6 +68,7 @@ DARTSrt redesigns the MARL assignment-and-scheduling loop around four mechanisms
 ```
 
 All scripts assume the project root is on `PYTHONPATH` (`PYTHONPATH=.`).
+The sweep drivers `run_all_experiments_{light,medium,heavy}.py` are at the repository root.
 
 ---
 
@@ -128,9 +128,11 @@ All four benchmarks share the same physical testbed (four TurtleBot3 + four Jets
 | `--workload` | Scenario | Topology | Release | Stress levels |
 |---|---|---|---|---|
 | `B1_CDR` | Coordinated Disaster Response | Diamond fork-join `A → {B, C} → D` | Aperiodic single-shot | light / medium / heavy |
-| `B2_LML` | Last-Mile Autonomous Logistics | Linear 4-node chain `Pk → Hf → Dr → Cf` | Sporadic Poisson (mean 30 s @ medium) | light / medium / heavy |
+| `B2_LML` | Cooperative Autonomous Vehicle Fleet | Linear 4-node chain `Pk → Hf → Dr → Cf` | Sporadic Poisson (mean 30 s @ medium) | light / medium / heavy |
 | `B3_IQI` | Sequential Material Inspection | Linear chain `A → B → C → D` | Aperiodic single-shot | medium only |
-| `B4_DEM` | Distributed Field Survey | 4 independent jobs `{J1..J4}` | Aperiodic single-shot | medium only |
+| `B4_DEM` | Distributed Environmental Survey | 4 independent jobs `{J1..J4}` | Aperiodic single-shot | medium only |
+
+The scenario names of `B2_LML` and `B4_DEM` in this table are the names used in the paper. The registry identifiers and the display strings in `envs/workloads.py` keep the development names (Last-Mile Autonomous Logistics; Distributed Field Survey).
 
 Each registered node has a measurable fallback (`C_FB = 0.4 × WCET`), so Algorithm 1 case **N1** (undefined fallback) is structurally empty for DBench-4. Stress overrides (deadline tightening, battery reduction, Poisson rate) are in `alg/stress_profiles.py`. Heavy stress on B1 tightens deadlines by 1.6× and reduces battery to 0.55 Wh, calibrated to drive the CEA-EDF baseline across a 50% miss rate.
 
@@ -142,12 +144,12 @@ The full method × benchmark × stress × seed matrix is driven by the `run_all_
 
 ```bash
 # Single stress level, all methods, all applicable benchmarks
-PYTHONPATH=. python alg/run_all_experiments_medium.py \
+PYTHONPATH=. python run_all_experiments_medium.py \
     --methods darts,darts_nocert,darts_no_incentive,cea_edf,sadcher \
     --num_episodes 5000
 
 # Resume an interrupted sweep (skips cells whose result CSV already exists)
-PYTHONPATH=. python alg/run_all_experiments_medium.py --resume ...
+PYTHONPATH=. python run_all_experiments_medium.py --resume ...
 ```
 
 A reference 5-pane tmux launcher (medium + light + heavy, paper-critical cells) is in `scripts/sweep_d1.sh`. Results are written to `results/exp_<idx>/<B#>/<stress>/<method>_log.csv`; aggregate them with:
@@ -199,13 +201,14 @@ Per-eval rows in `*_log.csv` (header in `train_darts.EVAL_CSV_HEADER`) include:
 
 ## Citation
 
-DARTSrt is under submission. Until publication, please cite the repository and the draft:
+If you use this code or data, please cite the paper:
 
 ```bibtex
-@misc{dartsrt,
-  title  = {DARTSrt: A Real-Time MARL Framework with Bounded Auction Latency and Schedulability},
-  note   = {Under submission},
-  year   = {2026}
+@inproceedings{chen2026dartsrt,
+  author    = {Chen, Yifan and Liu, Cong},
+  title     = {{DARTS}$^{\mathrm{rt}}$: A Real-Time {MARL} Framework with Bounded Auction Latency and Schedulability},
+  booktitle = {2026 IEEE Real-Time Systems Symposium (RTSS)},
+  year      = {2026}
 }
 ```
 

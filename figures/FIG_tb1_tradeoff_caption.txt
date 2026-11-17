@@ -1,0 +1,1 @@
+System utilization U stays within 0.0087 of U(ζ=1) across the sweep, ζ sampled at the labeled values (ordinal spacing). Dotted line: deployed calibration ζ=1. In the tightened-deadline probe, utilization falls with admission for ζ≥3. Shaded bands: seed min–max across the three frozen policies; hatched area: certificate evaluated below calibration (unsound).

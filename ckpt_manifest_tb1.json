@@ -1,0 +1,132 @@
+{
+  "_meta": {
+    "description": "TB-1 checkpoint manifest: paper-era DARTS checkpoints pinned by last-row episode.",
+    "generated_by": "scripts/build_tb1_manifest.py",
+    "method_prefix": "darts_",
+    "n_agents": 4,
+    "results_dir": "/home/yifan/DARTS-Simulation/results",
+    "aggregate_root": "/home/yifan/DARTS-Simulation/results_a1a2b1_20260521",
+    "caveats": [
+      "config.json in every era omits relative_deadline_ms and all poisson_* keys (they live on the Workload dataclass, not cfg). A checkpoint's stress provenance therefore rests solely on its directory name.",
+      "AGGREGATE-MATCH is NOT_APPLICABLE for B2_LML: the aggregate tree carries only darts_no_incentive logs for B2, so those cells pass on EP-PIN + ERA alone.",
+      "safe_read_csv drops rows wider than the header; these logs interleave 59/62/63-column eras, so the pinned epoch is taken from a raw tail read whenever the two disagree. Without that guard the B1 cells pin stale ep5000 checkpoints instead of ep2500."
+    ]
+  },
+  "B1_CDR|medium|100": {
+    "dir": "/home/yifan/DARTS-Simulation/results/darts_B1_CDR_medium_seed100",
+    "ep": 2500,
+    "bilevel_mode": "fixed_eta",
+    "no_incentive": false,
+    "provenance": {
+      "byte_equal": true,
+      "last_row_equal": true,
+      "aggregate_path": "/home/yifan/DARTS-Simulation/results_a1a2b1_20260521/exp_1/B1/medium/darts_log.csv",
+      "status": "OK",
+      "note": null
+    }
+  },
+  "B1_CDR|medium|300": {
+    "dir": "/home/yifan/DARTS-Simulation/results/darts_B1_CDR_medium_seed300",
+    "ep": 2500,
+    "bilevel_mode": "fixed_eta",
+    "no_incentive": false,
+    "provenance": {
+      "byte_equal": true,
+      "last_row_equal": true,
+      "aggregate_path": "/home/yifan/DARTS-Simulation/results_a1a2b1_20260521/exp_3/B1/medium/darts_log.csv",
+      "status": "OK",
+      "note": null
+    }
+  },
+  "B1_CDR|medium|500": {
+    "dir": "/home/yifan/DARTS-Simulation/results/darts_B1_CDR_medium_seed500",
+    "ep": 2500,
+    "bilevel_mode": "fixed_eta",
+    "no_incentive": false,
+    "provenance": {
+      "byte_equal": true,
+      "last_row_equal": true,
+      "aggregate_path": "/home/yifan/DARTS-Simulation/results_a1a2b1_20260521/exp_5/B1/medium/darts_log.csv",
+      "status": "OK",
+      "note": null
+    }
+  },
+  "B1_CDR|heavy|100": {
+    "dir": "/home/yifan/DARTS-Simulation/results/darts_B1_CDR_heavy_seed100",
+    "ep": 2500,
+    "bilevel_mode": "fixed_eta",
+    "no_incentive": false,
+    "provenance": {
+      "byte_equal": false,
+      "last_row_equal": true,
+      "aggregate_path": "/home/yifan/DARTS-Simulation/results_a1a2b1_20260521/exp_1/B1/heavy/darts_log.csv",
+      "status": "OK",
+      "note": "byte mismatch; last row equal after whitespace strip"
+    }
+  },
+  "B1_CDR|heavy|300": {
+    "dir": "/home/yifan/DARTS-Simulation/results/darts_B1_CDR_heavy_seed300",
+    "ep": 2500,
+    "bilevel_mode": "fixed_eta",
+    "no_incentive": false,
+    "provenance": {
+      "byte_equal": true,
+      "last_row_equal": true,
+      "aggregate_path": "/home/yifan/DARTS-Simulation/results_a1a2b1_20260521/exp_3/B1/heavy/darts_log.csv",
+      "status": "OK",
+      "note": null
+    }
+  },
+  "B1_CDR|heavy|500": {
+    "dir": "/home/yifan/DARTS-Simulation/results/darts_B1_CDR_heavy_seed500",
+    "ep": 2500,
+    "bilevel_mode": "fixed_eta",
+    "no_incentive": false,
+    "provenance": {
+      "byte_equal": true,
+      "last_row_equal": true,
+      "aggregate_path": "/home/yifan/DARTS-Simulation/results_a1a2b1_20260521/exp_5/B1/heavy/darts_log.csv",
+      "status": "OK",
+      "note": null
+    }
+  },
+  "B2_LML|medium|100": {
+    "dir": "/home/yifan/DARTS-Simulation/results/darts_B2_LML_medium_seed100",
+    "ep": 5000,
+    "bilevel_mode": "fixed_eta",
+    "no_incentive": false,
+    "provenance": {
+      "byte_equal": null,
+      "last_row_equal": null,
+      "aggregate_path": "/home/yifan/DARTS-Simulation/results_a1a2b1_20260521/exp_1/B2/medium/darts_log.csv",
+      "status": "NOT_APPLICABLE",
+      "note": "aggregate tree carries only darts_no_incentive logs for B2; no plain-darts counterpart exists. Cell passes on EP-PIN + ERA alone."
+    }
+  },
+  "B2_LML|medium|200": {
+    "dir": "/home/yifan/DARTS-Simulation/results/darts_B2_LML_medium_seed200",
+    "ep": 5000,
+    "bilevel_mode": "fixed_eta",
+    "no_incentive": false,
+    "provenance": {
+      "byte_equal": null,
+      "last_row_equal": null,
+      "aggregate_path": "/home/yifan/DARTS-Simulation/results_a1a2b1_20260521/exp_2/B2/medium/darts_log.csv",
+      "status": "NOT_APPLICABLE",
+      "note": "aggregate tree carries only darts_no_incentive logs for B2; no plain-darts counterpart exists. Cell passes on EP-PIN + ERA alone."
+    }
+  },
+  "B2_LML|medium|300": {
+    "dir": "/home/yifan/DARTS-Simulation/results/darts_B2_LML_medium_seed300",
+    "ep": 5000,
+    "bilevel_mode": "fixed_eta",
+    "no_incentive": false,
+    "provenance": {
+      "byte_equal": null,
+      "last_row_equal": null,
+      "aggregate_path": "/home/yifan/DARTS-Simulation/results_a1a2b1_20260521/exp_3/B2/medium/darts_log.csv",
+      "status": "NOT_APPLICABLE",
+      "note": "aggregate tree carries only darts_no_incentive logs for B2; no plain-darts counterpart exists. Cell passes on EP-PIN + ERA alone."
+    }
+  }
+}

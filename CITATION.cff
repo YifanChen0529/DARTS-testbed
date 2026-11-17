@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+message: "If you use this software or data, please cite the paper below."
+title: "DARTS^rt: A Real-Time MARL Framework with Bounded Auction Latency and Schedulability"
+type: software
+authors:
+  - family-names: Chen
+    given-names: Yifan
+    affiliation: "University of California, Riverside"
+  - family-names: Liu
+    given-names: Cong
+    affiliation: "University of California, Riverside"
+repository-code: "https://github.com/YifanChen0529/DARTS-Simulation"
+license: MIT
+preferred-citation:
+  type: conference-paper
+  title: "DARTS^rt: A Real-Time MARL Framework with Bounded Auction Latency and Schedulability"
+  authors:
+    - family-names: Chen
+      given-names: Yifan
+    - family-names: Liu
+      given-names: Cong
+  collection-title: "2026 IEEE Real-Time Systems Symposium (RTSS)"
+  year: 2026

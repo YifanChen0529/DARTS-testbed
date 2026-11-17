@@ -352,6 +352,37 @@ class TurtleBot3Env:
             safety_margin,
         )
 
+    def estimate_chain_wcet_components_ms(
+        self, agent_id, prev_xy, target_xy, task_base_duration_ms,
+        obstacle_penalty=1.5, safety_margin=1.1,
+    ):
+        """TB-1 additive companion to estimate_chain_wcet_ms.
+        Returns (travel_envelope_ms, exec_ms, origin_xy) with the invariant
+        travel_envelope_ms + exec_ms == estimate_chain_wcet_ms(...)[0] bit-exactly.
+        Arithmetic is duplicated VERBATIM from estimate_chain_wcet_ms /
+        _wcet_travel_from_origin_ms so those AE-era methods stay untouched;
+        the bit-exactness unit test guards drift -- edit both copies together
+        or not at all. Degenerate guard (prev_xy None, agent_id out of range)
+        reports the whole value as travel_envelope_ms with exec_ms = 0.0
+        (unreachable in the trainer path)."""
+        if prev_xy is not None:
+            origin_xy = (float(prev_xy[0]), float(prev_xy[1]))
+        else:
+            if agent_id < 0 or agent_id >= len(self._positions):
+                return task_base_duration_ms * safety_margin, 0.0, (0.0, 0.0)
+            ax, ay = self._positions[agent_id]
+            origin_xy = (ax, ay)
+        ox, oy = origin_xy
+        tx, ty = target_xy
+        distance_m = _distance((ox, oy), (tx, ty))
+        for (ox_r, oy_r, w, h) in self.obstacles:
+            if self._line_intersects_rect(ox, oy, tx, ty, ox_r, oy_r, w, h):
+                distance_m *= obstacle_penalty
+                break
+        travel_time_ms = (distance_m / self.max_velocity_mps) * 1000.0
+        travel_envelope_ms = travel_time_ms * safety_margin
+        return travel_envelope_ms, task_base_duration_ms, (ox, oy)
+
     def _move_toward_target(
         self, agent_id: int, target_xy: Optional[Tuple[float, float]]
     ) -> Tuple[float, float, bool]:
@@ -559,6 +590,9 @@ class TurtleBot3Env:
         # 1) Task execution only when at target: drain WCET; on finish, complete_active_job and signal DAG
         completed_agent_indices: List[int] = []
         newly_completed_nodes: List[str] = []
+        # TB-1: parallel to is_moving_list below; True iff execute_task ran for agent i this step.
+        # Declared here because the drain loop that sets it precedes the movement loop.
+        is_executing_list: List[bool] = [False] * self.num_agents
         if agents is not None and len(agents) == self.num_agents:
             for i, agent in enumerate(agents):
                 active = agent.get_active_job()
@@ -570,6 +604,7 @@ class TurtleBot3Env:
                     )
                     if at_target:
                         agent.execute_task(self._clock_ms, delta_ms=step_dt_ms)
+                        is_executing_list[i] = True
                     # When execution timer finishes (WCET drained), pop job and signal completion
                     if at_target and active.remaining_work_ms <= 0:
                         completed_job = agent.complete_active_job()
@@ -744,6 +779,7 @@ class TurtleBot3Env:
             "battery_wh": self._battery_wh.copy(),
             "battery_depletion_pct": [(init_wh[i] - self._battery_wh[i]) / init_wh[i] if init_wh[i] > 0 else 0.0 for i in range(self.num_agents)],
             "is_moving": is_moving_list,
+            "is_executing": is_executing_list,
             "bids": [0.0] * self.num_agents,  # no step-level bids; bidding is epoch-level only
             "newly_completed_nodes": newly_completed_nodes,
             "subtask_completion_times_ms": subtask_completion_times_ms,
@@ -787,6 +823,45 @@ class TurtleBot3Env:
         if agent_id < 0 or agent_id >= len(self._positions):
             return None
         return self._positions[agent_id]
+
+    def restore_battery_to_initial(self) -> List[float]:
+        """EXP-2: restore each agent's Wh to the episode-start snapshot.
+
+        Does not mutate ``_initial_battery_wh``. Not called from step/_consume_energy.
+        """
+        n = min(len(self._battery_wh), len(self._initial_battery_wh))
+        for i in range(n):
+            self._battery_wh[i] = self._initial_battery_wh[i]
+        return self._battery_wh.copy()
+
+    def register_job_instance(self, instance_id: str, class_id: str) -> None:
+        """EXP-2: register a minted ``class#ell`` id on every class-id-keyed env map.
+
+        Required: ``task_locations`` (execute/move lookup). Extended: ``_workload_node_ids``,
+        ``_task_predecessors``, ``_completion_tracker._node_ids``. ``completed_tasks_ms`` is a
+        dict and accepts unknown-id writes. ``_sink_node_ids`` is left on class ids so the
+        AE e2e-miss test stays class-keyed (admitted periodic runs size global_deadline
+        past L*P). Agent ``dag_tracker.process_incoming_messages`` already skips unknown
+        ids (simulation_env.py:159).
+        """
+        xy = self.task_locations.get(class_id)
+        if xy is None and getattr(self, "workload", None) is not None:
+            xy = self.workload.task_locations_m.get(class_id)
+        if xy is not None:
+            self.task_locations[instance_id] = xy
+        preds = list(self._task_predecessors.get(class_id, []))
+        minted_preds = []
+        suffix = ""
+        if "#" in instance_id:
+            suffix = "#" + instance_id.split("#", 1)[1]
+        for p in preds:
+            minted_preds.append(p + suffix if suffix and "#" not in p else p)
+        self._task_predecessors[instance_id] = minted_preds
+        if instance_id not in self._workload_node_ids:
+            self._workload_node_ids = tuple(self._workload_node_ids) + (instance_id,)
+        tr = getattr(self, "_completion_tracker", None)
+        if tr is not None and instance_id not in tr._node_ids:
+            tr._node_ids = tuple(tr._node_ids) + (instance_id,)
 
     @property
     def single_observation_size(self) -> int:

@@ -8,6 +8,7 @@ import copy
 import logging
 import math
 import random
+import time  # TB-1: perf_counter for per-bid cert / inference timing
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Tuple, TYPE_CHECKING
 
@@ -38,6 +39,112 @@ except ImportError:
 
 # Worst-case travel budget: 14.14 m diagonal of 10x10 map at 0.22 m/s (~64.3 s) + safety margin
 MAX_TRAVEL_TIME_MS = 65000.0
+
+
+# TB-1 certificate conservatism. Read ONLY by check_feasibility_scaled.
+_CERT_ENVELOPE_SCALES: Dict[str, float] = {
+    "kappa": 1.0,
+    "exec": 1.0,
+    "travel": 1.0,
+    "energy": 1.0,
+}
+
+
+@contextlib.contextmanager
+def scaled_cert_envelopes(
+    kappa: float = 1.0,
+    exec_scale: float = 1.0,
+    travel_scale: float = 1.0,
+    energy_scale: float = 1.0,
+):
+    """TB-1/TB-2: scales ONLY envelopes read inside check_feasibility. Never scales Δ_adm, δ_auc
+    (delta_max_ms overhead reservation), H, environment dynamics, policy features (slack,
+    dynamic_budget_ms), commit budgets, fallback costs, or e_safe. Restores on exit. Single-threaded.
+
+    Routing is additive: the AE-era ``check_feasibility`` is never edited. While any scale differs
+    from 1.0 this rebinds the class attribute to ``check_feasibility_scaled`` (a verbatim duplicate
+    carrying the κ factors) and restores the original binding on exit. At the all-1.0 default no
+    rebinding happens at all, so the untouched AE method runs and κ=1.0 is exact by construction
+    rather than by floating-point argument.
+    """
+    previous = dict(_CERT_ENVELOPE_SCALES)
+    _CERT_ENVELOPE_SCALES.update(
+        {
+            "kappa": float(kappa),
+            "exec": float(exec_scale),
+            "travel": float(travel_scale),
+            "energy": float(energy_scale),
+        }
+    )
+    rebind = any(v != 1.0 for v in _CERT_ENVELOPE_SCALES.values())
+    original = DartsMARLAgent.__dict__["check_feasibility"]
+    if rebind:
+        DartsMARLAgent.check_feasibility = DartsMARLAgent.check_feasibility_scaled
+    try:
+        yield
+    finally:
+        if rebind:
+            DartsMARLAgent.check_feasibility = original
+        _CERT_ENVELOPE_SCALES.clear()
+        _CERT_ENVELOPE_SCALES.update(previous)
+
+
+# EXP-2 partitioned allocation. Read by compute_bid (early guard) and
+# alg.defer_fallback.execute_fallback_assign. Empty map => no restriction.
+_ALLOC_MAP: Dict[str, str] = {}
+
+
+def class_of_node_id(node_id: str) -> str:
+    """Job class: strip a trailing ``#ell`` instance suffix; identity otherwise."""
+    if node_id is None:
+        return ""
+    return str(node_id).split("#")[0]
+
+
+def get_alloc_map() -> Dict[str, str]:
+    return dict(_ALLOC_MAP)
+
+
+def alloc_map_is_active() -> bool:
+    return bool(_ALLOC_MAP)
+
+
+def alloc_target_for(node_id: str) -> Optional[str]:
+    if not _ALLOC_MAP:
+        return None
+    return _ALLOC_MAP.get(class_of_node_id(node_id))
+
+
+def alloc_map_blocks(agent_id: str, node_id: str) -> bool:
+    """True iff an alloc map is active and this agent is not alloc(class_of(node_id))."""
+    if not _ALLOC_MAP:
+        return False
+    target = _ALLOC_MAP.get(class_of_node_id(node_id))
+    if target is None:
+        return False
+    return str(agent_id) != str(target)
+
+
+@contextlib.contextmanager
+def partitioned_alloc(mapping: Optional[Dict[str, str]] = None):
+    """Install a job-class -> agent_id map for the partition restriction.
+
+    Restores the previous map on exit. ``mapping=None`` or ``{}`` is a no-op so
+    the default eval path is byte-identical to an unwrapped call.
+    """
+    previous = dict(_ALLOC_MAP)
+    _ALLOC_MAP.clear()
+    if mapping:
+        _ALLOC_MAP.update({str(k): str(v) for k, v in mapping.items()})
+        logging.getLogger("train_darts").info(
+            "[EXP2][alloc] active partitioned alloc map: %s",
+            dict(_ALLOC_MAP),
+        )
+    try:
+        yield
+    finally:
+        _ALLOC_MAP.clear()
+        _ALLOC_MAP.update(previous)
 
 
 def deadline_cost(t: float, d_v: float) -> float:
@@ -277,6 +384,10 @@ class DartsMARLAgent:
     def queue(self) -> List[CommittedJob]:
         return self._queue.copy()
 
+    def queue_length(self) -> int:
+        """Additive read-only EDF queue length (EXP-2 boundary probe)."""
+        return len(self._queue)
+
     def _queue_state_vector(self) -> np.ndarray:
         """Queue state: [queue_length_norm, total_remaining_work_norm]."""
         n = len(self._queue)
@@ -473,19 +584,29 @@ class DartsMARLAgent:
             new_task.relative_deadline or getattr(self.cfg, "global_deadline_ms", 120000.0)
         )
 
+        # TB-1: per-bid wall-clock for the subround sidecar. Stays 0.0 for the
+        # NoCert ablation, which never reaches the certificate call.
+        _t_cert_ms = 0.0
+        _t_infer_ms = 0.0
         # Certificate: cert = 1.0 if EDF temporal + energy feasible, else 0.0
         if getattr(self.cfg, "disable_feasibility_mask", False):
             # ABLATION: DARTS-NoCert — skip schedulability check; force cert mask on for bidding.
             is_feasible = True
             cert = 1.0
         else:
+            _exp2_alloc_block = alloc_map_blocks(self.agent_id, new_task.node_id)
+            _t0_cert = time.perf_counter()
             is_feasible = self.check_feasibility(
                 new_task, current_time_ms, current_battery_wh,
                 dynamic_wcet_ms=dynamic_wcet,
                 release_time_ms=release_time_ms,
                 env=env,
             )
+            _t_cert_ms = (time.perf_counter() - _t0_cert) * 1000.0
             cert = 1.0 if is_feasible else 0.0
+            if _exp2_alloc_block:
+                is_feasible = False
+                cert = 0.0
 
         # Queue-aware slack per Eq. 8-9: s_{i,v} = d_v - PredictFinish_i(v, Q_i(t_k)).
         # Queue entries use chain-aware c_v from _sorted_queue_for_math; the hypothetical new
@@ -525,6 +646,7 @@ class DartsMARLAgent:
         ).unsqueeze(0)
 
         # μ = bidding_net(χ^h) ∈ [0, 1]
+        _t0_infer = time.perf_counter()
         mu = self.bidding_net(chi_h).squeeze(-1)
         if explore:
             # Beta distribution: proper support on (0,1), no clamp boundary bias.
@@ -538,6 +660,8 @@ class DartsMARLAgent:
         else:
             bid_frac = mu.clamp(0.0, 1.0)
             log_prob = torch.tensor(0.0, device=self.device, dtype=mu.dtype)
+        _t_infer_ms = (time.perf_counter() - _t0_infer) * 1000.0
+        self.last_bid_timing = {"t_cert_ms": _t_cert_ms, "t_infer_ms": _t_infer_ms}
 
         # Eq. 14 with Physical Prior: spatial discount (1 - dist_norm) scales bid by proximity to task.
         # dist_norm remains part of χ^h so the network can learn how distance affects its effective bid.
@@ -671,6 +795,93 @@ class DartsMARLAgent:
             new_job_energy_wh = self.get_wc_energy_wh(new_job.wcet)
         total_required_energy_wh = sum(
             self.get_wc_energy_wh(j.wcet) for j in self._queue
+        ) + new_job_energy_wh
+        e_safe = getattr(self.cfg, "e_safe_wh", 0.05)
+        energy_feasible = current_battery_wh >= (e_safe + total_required_energy_wh)
+
+        return time_feasible and energy_feasible
+
+    def check_feasibility_scaled(
+        self,
+        new_job: TaskNode,
+        current_time_ms: float,
+        current_battery_wh: float = 1.0,
+        dynamic_wcet_ms: Optional[float] = None,
+        release_time_ms: float = 0.0,
+        env: Optional["TurtleBot3Env"] = None,
+    ) -> bool:
+        """TB-1 additive companion to check_feasibility, bound in only by scaled_cert_envelopes.
+
+        Body duplicated VERBATIM from check_feasibility so that AE-era method stays untouched;
+        the only differences are the kt/kx/ke factors on the chain, no-location and energy
+        envelopes. overhead_ms (Δ_max reservation) and e_safe are deliberately left unscaled,
+        and Δ_adm/δ_auc/H/env dynamics/policy features are not reachable from here. The paired
+        κ=1.0 test guards drift -- edit both copies together or not at all.
+        """
+        if getattr(self.cfg, "disable_feasibility_mask", False):
+            # ABLATION: DARTS-NoCert — skip EDF prefix-sum and energy certificate.
+            return True
+
+        kt = _CERT_ENVELOPE_SCALES["kappa"] * _CERT_ENVELOPE_SCALES["travel"]
+        kx = _CERT_ENVELOPE_SCALES["kappa"] * _CERT_ENVELOPE_SCALES["exec"]
+        ke = _CERT_ENVELOPE_SCALES["kappa"] * _CERT_ENVELOPE_SCALES["energy"]
+
+        overhead_ms = getattr(self.cfg, "delta_max_ms", 50.0)
+
+        # New job budget: dynamic_wcet (if provided) + overhead, else WCET + average travel heuristic + overhead.
+        if dynamic_wcet_ms is not None:
+            new_job_budget = dynamic_wcet_ms + overhead_ms
+        else:
+            new_job_budget = new_job.wcet + 25000.0 + overhead_ms
+
+        # Post-admission queue with chain recomposition (Lemma 2 of paper)
+        dyn_budget_new = (
+            (dynamic_wcet_ms if dynamic_wcet_ms is not None else new_job.wcet + 25000.0) + overhead_ms
+        )
+        d_v = release_time_ms + (
+            new_job.relative_deadline or getattr(self.cfg, "global_deadline_ms", 120000.0)
+        )
+
+        # Build the union queue with new_job inserted, then resort by deadline,
+        # then recompute chain costs against EDF-predecessor positions.
+        union_jobs = list(self._queue) + [
+            CommittedJob(
+                job_id=new_job.node_id,
+                task_name=new_job.name,
+                absolute_deadline_ms=d_v,
+                remaining_work_ms=new_job.wcet,
+                wcet=new_job.wcet,
+                total_budget_ms=dyn_budget_new,
+            )
+        ]
+        union_jobs.sort(key=lambda x: (x.absolute_deadline_ms, x.job_id))
+
+        agent_idx = self._agent_index()
+        prev_xy: Optional[Tuple[float, float]] = None
+        test_queue: List[Tuple[str, float, float]] = []
+        for j in union_jobs:
+            if env is not None and getattr(env, "task_locations", None) is not None and j.job_id in env.task_locations:
+                target_xy = env.task_locations[j.job_id]
+                travel_envelope_ms, exec_ms, _ = env.estimate_chain_wcet_components_ms(
+                    agent_idx, prev_xy, target_xy, j.remaining_work_ms,
+                )
+                c_v = kt * travel_envelope_ms + kx * exec_ms + overhead_ms
+                prev_xy = target_xy
+            else:
+                c_v = kx * j.remaining_work_ms + kt * 25000.0 + overhead_ms
+                prev_xy = None
+            test_queue.append((j.job_id, j.absolute_deadline_ms, c_v))
+        time_feasible = _feasibility_test(test_queue, current_time_ms)
+
+        if dynamic_wcet_ms is not None:
+            new_job_energy_wh = ke * (
+                (dynamic_wcet_ms + overhead_ms) / 3600000.0
+                * getattr(self.cfg, "p_moving_w", 7.5)
+            )
+        else:
+            new_job_energy_wh = ke * self.get_wc_energy_wh(new_job.wcet)
+        total_required_energy_wh = sum(
+            ke * self.get_wc_energy_wh(j.wcet) for j in self._queue
         ) + new_job_energy_wh
         e_safe = getattr(self.cfg, "e_safe_wh", 0.05)
         energy_feasible = current_battery_wh >= (e_safe + total_required_energy_wh)

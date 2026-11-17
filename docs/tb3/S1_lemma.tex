@@ -1,0 +1,36 @@
+\begin{lemma}[Per-node travel eccentricity]
+\label{lem:s1-eccentricity}
+Under the straight-line travel-time instantiation of the offline envelope, with
+agents confined to the workspace $W = [0, L]^2$ throughout execution, define
+\[
+\hat\tau_v
+  := \max_{c \in \mathrm{vert}(W)}
+     \frac{\|c - \mathbf{pos}_v\|}{u_{\max}}.
+\]
+Then every travel leg toward $v$, whether from an initial pose, from a
+predecessor task endpoint in a recomposed chain, or after a preemptive goal
+redirection, has straight-line travel time at most $\hat\tau_v$. Replacing
+$\bar\tau$ by $\hat\tau_v$ in the per-node envelope of the offline path-sum
+test preserves the upper-bound property, and the resulting test is sound
+whenever the baseline instantiation's travel model is.
+\end{lemma}
+
+\begin{proof}
+Every leg origin lies in $W$: initial poses are sampled in $W$; task endpoints
+lie in $W$; intermediate positions remain in $W$ by position clipping; and a
+mid-leg redirection origin is a convex combination of points in $W$, hence
+again in $W$. The map $p \mapsto \|p - \mathbf{pos}_v\|$ is convex on $W$, so
+its maximum over the polytope $W$ is attained at a vertex. That vertex maximum
+is $\hat\tau_v \cdot u_{\max}$, and dividing by $u_{\max}$ bounds the
+straight-line travel time of any leg toward $v$. Soundness of the path-sum then
+follows from componentwise monotonicity of the test in the per-node envelopes,
+by the same lifting argument as Remark~2.
+\end{proof}
+
+\begin{remark}
+On the four registered DBench-4 geometries, $\hat\tau_v \le \bar\tau$ for every
+node, so the refined test is uniformly at least as tight there. For arbitrary
+task placements the two instantiations are incomparable, because the baseline
+fixes the start set to a single parking corner while $\hat\tau_v$ covers
+arbitrary initial poses in $W$.
+\end{remark}

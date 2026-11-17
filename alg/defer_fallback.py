@@ -8,11 +8,36 @@ from __future__ import annotations
 import logging
 from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple
+from typing import Set
 
 from envs.simulation_env import NODE_STATE_ASSIGNED
 
 # Match alg.darts_agent.MAX_TRAVEL_TIME_MS when env has no estimate_dynamic_wcet_ms.
 _MAX_TRAVEL_FALLBACK_MS = 65000.0
+
+# EXP-2: fallback assignments skipped because sponsor != alloc(class_of(job)).
+_FALLBACK_BLOCKED_COUNT = 0
+_FALLBACK_BLOCKED_JOBS: Set[str] = set()
+
+
+def record_fallback_blocked(job_id: str) -> None:
+    global _FALLBACK_BLOCKED_COUNT
+    _FALLBACK_BLOCKED_COUNT += 1
+    _FALLBACK_BLOCKED_JOBS.add(str(job_id))
+
+
+def fallback_blocked_count() -> int:
+    return int(_FALLBACK_BLOCKED_COUNT)
+
+
+def fallback_blocked_jobs() -> Set[str]:
+    return set(_FALLBACK_BLOCKED_JOBS)
+
+
+def reset_fallback_blocked() -> None:
+    global _FALLBACK_BLOCKED_COUNT
+    _FALLBACK_BLOCKED_COUNT = 0
+    _FALLBACK_BLOCKED_JOBS.clear()
 
 
 class FallbackOutcome(Enum):
@@ -112,6 +137,26 @@ def execute_fallback_assign(
     """
     Assign job to sponsor with fallback WCET C̃^FB (degradable path). Excluded from V^ff (Eq. 28).
     """
+    # EXP-2 partition gate. Return contract: this function returns None and
+    # callers (train_darts.py DEGRADABLE_FALLBACK_NOW / NONDEGRADABLE_N2) do
+    # not inspect the return value; "no assignment happened" is simply not
+    # calling assign_job. When the sponsor is not alloc(class_of(job)) we
+    # early-return None without mutating queues or trackers.
+    from alg.darts_agent import alloc_map_is_active, alloc_target_for
+    _job_id = getattr(job, "node_id", None)
+    if alloc_map_is_active() and _job_id is not None:
+        _alloc_tgt = alloc_target_for(_job_id)
+        _sponsor_id = None
+        if 0 <= sponsor_idx < len(agents):
+            _sponsor_id = getattr(agents[sponsor_idx], "agent_id", None)
+        if _alloc_tgt is not None and _sponsor_id is not None and _sponsor_id != _alloc_tgt:
+            record_fallback_blocked(_job_id)
+            log = episode_logger or logging.getLogger("episode_events")
+            log.warning(
+                "[EXP2][alloc] fallback blocked: job=%s sponsor=%s alloc_target=%s",
+                _job_id, _sponsor_id, _alloc_tgt,
+            )
+            return None
     delta_max_ms = getattr(cfg, "delta_max_ms", 50.0)
     log = episode_logger or logging.getLogger("episode_events")
     if (

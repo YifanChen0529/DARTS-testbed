@@ -1,0 +1,61 @@
+// Standalone EXP-3 benchmark proto, quarantined from envs/proto,
+// generated with grpcio-tools 1.78.0.
+syntax = "proto3";
+
+package cbba;
+
+message AgentLists {
+  int32 sender_id = 1;
+  int32 round = 2;
+  repeated int32 z = 3;
+  repeated double y = 4;
+  repeated int32 s = 5;
+  int64 send_ns = 6;
+}
+
+message Ack {
+  int32 receiver_id = 1;
+  int32 round = 2;
+}
+
+message StartTrial {
+  int32 trial_id = 1;
+  int32 m = 2;
+  int32 l_t = 3;
+  repeated double task_xy = 4;
+  repeated double start_xy = 5;
+}
+
+message RoundDigest {
+  int32 agent_id = 1;
+  int32 trial_id = 2;
+  int32 round = 3;
+  string digest = 4;
+  bool changed = 5;
+  double compute_ms = 6;
+  double blocking_ms = 7;
+}
+
+message TrialDone {
+  int32 agent_id = 1;
+  int32 trial_id = 2;
+  int32 n_rounds = 3;
+  repeated int32 final_z = 4;
+  repeated double final_y = 5;
+  int64 msgs_sent = 6;
+  int64 bytes_sent = 7;
+  // Additive: per-round local timing so the runner can fill CBBA_LOG_HEADER
+  // without a second RPC. Fields 1–7 are the specified TrialDone payload.
+  repeated RoundDigest round_digests = 8;
+}
+
+message Empty {}
+
+service CbbaPeer {
+  rpc ExchangeLists(AgentLists) returns (Ack);
+}
+
+service CbbaControl {
+  rpc BeginTrial(StartTrial) returns (Empty);
+  rpc PollTrial(Empty) returns (TrialDone);
+}

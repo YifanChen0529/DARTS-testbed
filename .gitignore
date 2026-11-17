@@ -241,3 +241,7 @@ smoke_*.log
 smoke_v2_*.log
 darts_venv/
 darts_venv_broken_20260425/
+
+# Release version: the curated data package described in DATA.md is tracked.
+!/data/
+!/data/**

@@ -7,6 +7,9 @@
 numpy==2.4.2
 pandas==3.0.1
 matplotlib==3.10.8
+# The gRPC stubs envs/proto/*_pb2_grpc.py were generated with grpcio-tools 1.80.0 and
+# need grpcio>=1.80.0 to import. They serve the distributed_jetson mode (see
+# DEVELOPMENT.md). The README targets and the test suite run with the pin below.
 grpcio==1.78.0
 protobuf==7.34.0
 tensorboard==2.20.0
